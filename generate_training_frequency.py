@@ -2,6 +2,13 @@ import os
 import random
 import csv
 
+sym = "-ABCDEFGHIKLMNPQRSTUVWXYZ"
+amino = {}
+counter = 0
+for i in range(len(sym)):
+	amino[sym[i]] = counter
+	counter+=1
+
 '''
 Create a training set for protein secondary structures. 
 dir: the directory containing the secondary structure files
@@ -64,12 +71,16 @@ def training_points(dir,filename,num,width,t):
 	points = []
 	for i in range(num):
 		loc = random.randrange(len(seq))
-		p = ['-']*(2*width+2)
+		p = [0]*(2*width+2)*len(amino)
+		al = [0]*len(amino)
+		ar = [0]*len(amino)
 		for j  in range(width+1):
 			if(loc-j>=0):
-				p[width-j] = seq[loc-j]
+				al[amino[seq[loc-j]]]+=1
+				p[(width-j)*len(amino)+amino[seq[loc-j]]]=al[amino[seq[loc-j]]]
 			if(loc+j<len(seq)):
-				p[width+j] = seq[loc+j]
+				ar[amino[seq[loc+j]]]+=1
+				p[(width+j)*len(amino)+amino[seq[loc+j]]]=ar[amino[seq[loc+j]]]
 		if(t==0):
 			p[-1] = ss[loc]
 		else:
@@ -79,6 +90,8 @@ def training_points(dir,filename,num,width,t):
 				p[-1] = "H"
 			else:
 				p[-1] = "E"
+		for j in range(len(p)-1):
+			p[j] = str(p[j])
 		points.append(p)
 	return points
 
